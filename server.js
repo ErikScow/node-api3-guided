@@ -6,12 +6,13 @@ const hubsRouter = require('./hubs/hubs-router.js');
 const server = express();
 
 server.use(express.json());
-server.use('/api/hubs', hubsRouter);
+
 server.use(helmet())
 server.use(morgan('dev'))
 server.use(methodLogger)
-server.use(addName)
-server.use(lockout2)
+//server.use(addName)
+//server.use(lockout2)
+server.use('/api/hubs', hubsRouter);
 
 server.get('/', (req, res) => {
   const nameInsert = (req.name) ? ` ${req.name}` : '';
