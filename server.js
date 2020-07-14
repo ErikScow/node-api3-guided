@@ -1,11 +1,17 @@
 const express = require('express'); // importing a CommonJS module
-
+const helmet = require('helmet')
+const morgan = require('morgan')
 const hubsRouter = require('./hubs/hubs-router.js');
 
 const server = express();
 
 server.use(express.json());
 
+server.use(helmet())
+server.use(morgan('dev'))
+server.use(methodLogger)
+//server.use(addName)
+//server.use(lockout2)
 server.use('/api/hubs', hubsRouter);
 
 server.get('/', (req, res) => {
@@ -16,5 +22,34 @@ server.get('/', (req, res) => {
     <p>Welcome${nameInsert} to the Lambda Hubs API</p>
     `);
 });
+
+server.delete('/', (req, res) => {
+  res.send('deleted')
+})
+
+function methodLogger(req, res, next) {
+  console.log(`${req.method} request`);
+  next()
+}
+
+function addName(req, res, next) {
+  req.name = req.name || req.headers['x-name']
+  next()
+}
+
+function lockout(req, res, next) {
+  res.status(403).json({message: 'api in maintenance'})
+}
+
+function lockout2(req, res, next){
+  let d = new Date()
+  let n = d.getSeconds()
+  if(n%3 === 0){
+    res.status(403).json({message: 'you shall not pass'})
+  } else {
+    next()
+  }
+  
+}
 
 module.exports = server;

@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
 
 // /api/hubs/:id
 
-router.get('/:id', (req, res) => {
+router.get('/:id', validateId, (req, res) => {
   Hubs.findById(req.params.id)
   .then(hub => {
     if (hub) {
@@ -122,5 +122,22 @@ router.post('/:id/messages', (req, res) => {
     });
   });
 });
+
+function validateId(req, res, next){
+  const {id} = req.params
+  Hubs.findById(id)
+    .then(hub => {
+      if (hub){
+        req.hub = hub
+      next()
+      } else {
+        res.status(404).json({message: 'hub id not found'})
+      }
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({message: 'failed to process'})
+    })
+}
 
 module.exports = router;
